@@ -20,11 +20,11 @@ for root, dirs, files in os.walk(directory):
     for file in files:
         if file.endswith(".mcfunction"):
             filepath = os.path.join(root, file)
-            with open(filepath, "r") as f:
+            with open(filepath, "r", encoding='UTF-8') as f:
                 lines = f.readlines()
                 for line in lines:
                     for _, _, json_object in jsonfinder(line, json_only=True):
                         process_json_object(json_object, result)
 
-with open(output_file, "w") as f:
+with open(output_file, "w", encoding='UTF-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=4)
