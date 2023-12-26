@@ -8,7 +8,7 @@
       directory = "data/" # 这个是需要遍历的目录
       output_file = "data/lang/zh_cn.json" # 这个是输出的语言文件地址
       ```
-      这两个参数到你的实际情况
+      这两个参数到你的实际情况(注: 请提前新建你需要的 output_file 文件!)
    3. 运行即可
 
 注: 请严格遵守GPLv3!
