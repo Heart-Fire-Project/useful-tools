@@ -1,0 +1,14 @@
+1. 主要作用:
+   1. 从数据包中提取`"text"`和, 并且写入到专门的文件中
+   2. 使用`jsonfinder`来查找json字符串, 使用正则表达式识别`"text"`关键字
+2. 如何使用
+   1. 安装`jsonfinder`库 (pip install jsonfinder)
+   2. 调整
+      ```python 
+      directory = "data/" # 这个是需要遍历的目录
+      output_file = "data/text/text.json" # 这个是输出的语言文件地址
+      ```
+      这两个参数到你的实际情况(注: 请提前新建你需要的 output_file 文件!)
+   3. 运行即可
+
+注: 请严格遵守GPLv3!
