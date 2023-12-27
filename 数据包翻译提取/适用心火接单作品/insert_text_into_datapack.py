@@ -17,7 +17,7 @@ def insert_text_into_file(json_object, directory):
                 lines = f.readlines()
                 for i, line in enumerate(lines):
                     for item in value:
-                        pattern = r'(\{"text":"撒拉弗","color":"red"\},\{"text":")(.*?)(",)'
+                        pattern = r'(\{"text":")(.*?)(",)'
                         replacement = r'\1' + item + r'\3'
                         lines[i] = re.sub(pattern, replacement, line)
                 f.seek(0)
