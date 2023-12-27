@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import os
 import json
 import re
@@ -16,6 +17,15 @@ def process_json_object(json_object, result):
 
 
 def process_mcfunction_file(filepath, result):
+    relpath = os.path.relpath(filepath, directory)
+    path_parts = relpath.split(os.sep)
+    current_dict = result
+
+    for part in path_parts[:-1]:
+        if part not in current_dict:
+            current_dict[part] = {}
+        current_dict = current_dict[part]
+
     with open(filepath, "r", encoding="UTF-8") as f:
         lines = f.readlines()
         for line in lines:
@@ -23,19 +33,21 @@ def process_mcfunction_file(filepath, result):
                 if isinstance(json_object, dict):
                     text = json_object.get("text")
                     if text:
-                        if os.path.basename(filepath) not in result:
-                            result[os.path.basename(filepath)] = [text]
+                        filename = path_parts[-1]
+                        if filename not in current_dict:
+                            current_dict[filename] = [text]
                         else:
-                            result[os.path.basename(filepath)].append(text)
+                            current_dict[filename].append(text)
                 else:
                     pattern = r'"text":"(.*?)"'
                     matches = re.findall(pattern, line)
                     if matches:
                         for match in matches:
-                            if os.path.basename(filepath) not in result:
-                                result[os.path.basename(filepath)] = [match]
+                            filename = path_parts[-1]
+                            if filename not in current_dict:
+                                current_dict[filename] = [match]
                             else:
-                                result[os.path.basename(filepath)].append(match)
+                                current_dict[filename].append(match)
 
 
 for root, dirs, files in os.walk(directory):
