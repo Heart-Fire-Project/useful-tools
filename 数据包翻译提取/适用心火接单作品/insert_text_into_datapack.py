@@ -13,12 +13,12 @@ def insert_text_into_file(json_object, directory):
             insert_text_into_file(value, os.path.join(directory, key))
         elif isinstance(value, list):
             filepath = os.path.join(directory, key)
-            with open(filepath, 'r+', encoding='UTF-8') as f:
+            with open(filepath, "r+", encoding="UTF-8") as f:
                 lines = f.readlines()
                 for i, line in enumerate(lines):
                     for item in value:
                         pattern = r'(\{"text":")(.*?)(",)'
-                        replacement = r'\1' + item + r'\3'
+                        replacement = r"\1" + item + r"\3"
                         lines[i] = re.sub(pattern, replacement, line)
                 f.seek(0)
                 f.writelines(lines)
@@ -27,7 +27,7 @@ def insert_text_into_file(json_object, directory):
             pass
 
 
-with open('your_json_file.json', 'r', encoding='UTF-8') as f:
+with open(insert_file, "r", encoding="UTF-8") as f:
     data = json.load(f)
 
 insert_text_into_file(data, directory)
