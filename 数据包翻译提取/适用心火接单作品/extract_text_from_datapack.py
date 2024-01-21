@@ -2,36 +2,37 @@
 import os
 import json
 import re
+
 from jsonfinder import jsonfinder
 
 directory = "data/"
 output_file = "data/text/text.json"
-result = {}
+result_dict = {}
 
 
-def process_json_object(json_object, result):
-    if isinstance(json_object, dict):
-        text = json_object.get("text")
-        if text and text not in result:
-            result[text] = text
+def process_json_object(json_obj, res_dict):
+    if isinstance(json_obj, dict):
+        text = json_obj.get("text")
+        if text and text not in res_dict:
+            res_dict[text] = text
 
 
-def process_mcfunction_file(filepath, result):
-    relpath = os.path.relpath(filepath, directory)
+def process_mcfunction_file(mcfunction_path, res_dict):
+    relpath = os.path.relpath(mcfunction_path, directory)
     path_parts = relpath.split(os.sep)
-    current_dict = result
+    current_dict = res_dict
 
     for part in path_parts[:-1]:
         if part not in current_dict:
             current_dict[part] = {}
         current_dict = current_dict[part]
 
-    with open(filepath, "r", encoding="UTF-8") as f:
-        lines = f.readlines()
+    with open(mcfunction_path, "r", encoding="UTF-8") as file_obj:
+        lines = file_obj.readlines()
         for line in lines:
-            for _, _, json_object in jsonfinder(line, json_only=True):
-                if isinstance(json_object, dict):
-                    text = json_object.get("text")
+            for _, _, json_obj in jsonfinder(line, json_only=True):
+                if isinstance(json_obj, dict):
+                    text = json_obj.get("text")
                     if text:
                         filename = path_parts[-1]
                         if filename not in current_dict:
@@ -53,8 +54,8 @@ def process_mcfunction_file(filepath, result):
 for root, dirs, files in os.walk(directory):
     for file in files:
         if file.endswith(".mcfunction"):
-            filepath = os.path.join(root, file)
-            process_mcfunction_file(filepath, result)
+            mcfunc_path = os.path.join(root, file)
+            process_mcfunction_file(mcfunc_path, result_dict)
 
-with open(output_file, "w", encoding="UTF-8") as f:
-    json.dump(result, f, ensure_ascii=False, indent=4)
+with open(output_file, "w", encoding="UTF-8") as output_file_obj:
+    json.dump(result_dict, output_file_obj, ensure_ascii=False, indent=4)
