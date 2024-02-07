@@ -50,16 +50,29 @@ def extract_trans_fallb_new_version(line):
     return result
 
 
-def extract_trans_fallb_json(json_obj):
-    tag_str = json_obj.get('tag')
-    if tag_str:
-        translate_match = re.search(r'"translate":"(.*?)"', tag_str)
-        fallback_match = re.search(r'"fallback":"(.*?)"', tag_str)
-        if translate_match and fallback_match:
-            translate = translate_match.group(1)
-            fallback = fallback_match.group(1)
-            return {translate: fallback}
-    return {}
+def extract_trans_fallb_from_tag(tag_str):
+    pattern = r'"translate":"(.*?)","fallback":"(.*?)"'
+    matches = re.findall(pattern, tag_str)
+    result = {}
+    for match in matches:
+        translate, fallback = match
+        if translate and fallback:
+            if translate in result:
+                result[translate].append(fallback)
+            else:
+                result[translate] = [fallback]
+    return result
+
+
+def process_json_file(filepath):
+    with open(filepath, "r", encoding="UTF-8") as f:
+        json_obj = json.load(f)
+        if "tag" in json_obj:
+            tag_str = json_obj["tag"]
+            result = extract_trans_fallb_from_tag(tag_str)
+            return result
+        else:
+            return {}
 
 
 for root, dirs, files in os.walk(directory):
@@ -76,12 +89,14 @@ for root, dirs, files in os.walk(directory):
                     else:
                         for _, _, json_object in jsonfinder(line, json_only=True):
                             extract_trans_fallb_old_version(json_object, result)
-        if file.endswith("json"):
+        if file.endswith(".json"):
             filepath = os.path.join(root, file)
             print("正在处理" + filepath)
-            with open(filepath, "r", encoding="UTF-8") as f:
-                json_obj = json.load(f)
-                result.update(extract_trans_fallb_json(json_obj))
+            result.update(process_json_file(filepath))
+
+for key in result.keys():
+    if isinstance(result[key], list) and len(result[key]) == 1:
+        result[key] = result[key][0]
 
 with open(output_file, "w", encoding="UTF-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=4)
