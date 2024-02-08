@@ -1,5 +1,7 @@
 # 翻译键提取 - 原创用
 
+## Extract translate from datapack
+
 1. 主要作用:
    1. 针对老版本 "translate" 和 "fallback":
       1. 从数据包中提取`"translate"`和`"fallback"`, 并且写入到专门的语言文件
@@ -25,5 +27,13 @@
         - 请提前新建你需要的 output_file 文件
 
    3. 运行即可
+
+## Extract_value_from_paratranz
+
+1. 主要作用:
+   1. 从 paratranz 的导出文件中提取翻译键, 并且写入到专门的语言文件
+
+2. 如何使用
+   1. 运行即可
 
 注: 请严格遵守 GPLv3!
