@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import json
 
 input_file = "origin.json"
