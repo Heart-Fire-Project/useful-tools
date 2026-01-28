@@ -3,17 +3,19 @@
 ## Extract translate from datapack
 
 1. 主要作用:
-   1. 针对老版本 "translate" 和 "fallback":
-      1. 从数据包中提取`"translate"`和`"fallback"`, 并且写入到专门的语言文件
-      2. 使用`jsonfinder`来查找 json 字符串, 防止使用正则表达式产生的识别不到问题
-   2. 针对新版本 "trans_x" 和 "fallb_x":
-      1. 从数据包中提取 "trans_x" 和 "fallb_x", 并且写入到专门的语言文件
-      2. 使用`re`来查找 json 字符串, 因为新版本的 json 字符串是不规则的, 所以使用正则表达式查找
+   1. 针对 JSON 格式 `"translate"` 和 `"fallback"`:
+      1. 从数据包中提取 `"translate": "key"` 和 `"fallback": "value"`
+      2. 递归解析 JSON 对象，支持嵌套结构
+   2. 针对 SNBT 格式 `translate:` 和 `fallback:`:
+      1. 从数据包中提取 `translate:"key"` 和 `fallback:"value"`（键无引号）
+      2. 使用正则表达式匹配，支持字段间有其他内容的情况
+   3. 自动过滤 Minecraft 宏占位符 `$(...)`
+   4. 兼容 Minecraft 1.21+ 数据包格式
+   5. 无需 `jsonfinder` 依赖，使用纯标准库
 
 2. 如何使用
 
-   1. 安装`jsonfinder`库 (`pip install jsonfinder`)
-   2. 调整
+   1. 调整
 
       ```python
       directory = "data/" # 这个是需要遍历的目录
@@ -23,15 +25,20 @@
       这两个参数到你的实际情况
 
       - 注:
-        - directory 是和你放置 py 文件目录同级的, 建议直接放置在 data/下
-        - 请提前新建你需要的 output_file 文件
+         - directory 是和你放置 py 文件目录同级的，建议直接放置在 data/ 下
+         - 输出目录会自动创建，无需手动新建
 
-   3. 运行即可
+   2. 运行即可
+
+3. 支持的文件类型
+   - `.json` - 数据包 JSON 文件
+   - `.mcfunction` - 函数文件
+   - `.mcmeta` - 元数据文件
 
 ## Extract_value_from_paratranz
 
 1. 主要作用:
-   1. 从 paratranz 的导出文件中提取翻译键, 并且写入到专门的语言文件
+   1. 从 paratranz 的导出文件中提取翻译键，并且写入到专门的语言文件
 
 2. 如何使用
    1. 运行即可
