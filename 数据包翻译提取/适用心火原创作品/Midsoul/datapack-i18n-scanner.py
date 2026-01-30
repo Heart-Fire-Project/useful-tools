@@ -6,8 +6,35 @@ from prettytable import PrettyTable
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 
+def is_macro_placeholder(text):
+    """检查是否为 Minecraft 宏占位符 $(...)"""
+    return text.startswith("$(") or "$(" in text
+
+
+def extract_from_macro_args(content):
+    """
+    从 merge_sign 等宏函数调用中提取翻译键
+    格式: function base:merge_sign {trans_2:"key",fallb_2:"value",trans_3:"key",fallb_3:"value"}
+    trans_N 对应翻译键，fallb_N 对应 fallback 值
+    """
+    extracted = {}
+    call_pattern = r'function\s+\S+:merge_sign\s*\{([^}]+)\}'
+    for match in re.finditer(call_pattern, content):
+        args_text = match.group(1)
+        param_pattern = r'(\w+)\s*:\s*"([^"]*)"'
+        params = dict(re.findall(param_pattern, args_text))
+        for suffix in ["_2", "_3"]:
+            trans_key = params.get(f"trans{suffix}", "")
+            fallb_val = params.get(f"fallb{suffix}", "")
+            if trans_key and fallb_val:
+                if not is_macro_placeholder(trans_key) and not is_macro_placeholder(fallb_val):
+                    if trans_key not in extracted:
+                        extracted[trans_key] = fallb_val
+    return extracted
+
+
 def extract_translations_from_file(file_path):
-    """从单个文件中提取翻译键，支持 JSON 和 SNBT 两种格式"""
+    """从单个文件中提取翻译键，支持 JSON、SNBT 和宏参数三种格式"""
     translations = {}
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -40,6 +67,12 @@ def extract_translations_from_file(file_path):
                 for key in matches:
                     if key not in translations:
                         translations[key] = ""  # 无 fallback 时使用空字符串
+
+            # 提取宏函数调用中的翻译键（如 merge_sign 的 trans_N/fallb_N 参数）
+            macro_extracted = extract_from_macro_args(content)
+            for k, v in macro_extracted.items():
+                if k not in translations:
+                    translations[k] = v
 
     except Exception as e:
         print(f"处理文件 {file_path} 时出错: {e}")

@@ -4,7 +4,7 @@
 
 1. 主要作用
    1. 从 Minecraft 数据包中提取所有翻译键（translate）及其回退值（fallback）
-   2. 支持 JSON 格式（`"translate": "key"`）和 SNBT 格式（`translate:"key"`）
+   2. 支持 JSON 格式（`"translate": "key"`）, SNBT 格式（`translate:"key"`）和宏函数格式（`merge_sign`, `trans_N` 与 `fallb_N`）
    3. 生成终端表格预览
    4. 生成 Excel 报告（`translation_report.xlsx`）
    5. 统计翻译键总数及重复键数量

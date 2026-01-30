@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
-Minecraft Datapack Translation Key Extractor
+mc-lang-extractor - Minecraft Datapack Translation Key Extractor
 从 Minecraft 数据包中提取翻译键，生成语言文件
 支持 JSON 和 SNBT 两种格式，兼容 Minecraft 1.21+
 """
@@ -35,6 +35,35 @@ def extract_from_snbt(text):
             continue
         if key not in extracted:
             extracted[key] = value
+
+    return extracted
+
+
+def extract_from_macro_args(text):
+    """
+    从 merge_sign 等宏函数调用中提取翻译键
+    格式: function base:merge_sign {trans_2:"key",fallb_2:"value",trans_3:"key",fallb_3:"value"}
+    trans_N 对应翻译键，fallb_N 对应 fallback 值
+    """
+    extracted = {}
+
+    # 匹配每一行的 merge_sign 函数调用参数块
+    call_pattern = r'function\s+\S+:merge_sign\s*\{([^}]+)\}'
+    for match in re.finditer(call_pattern, text):
+        args_text = match.group(1)
+
+        # 提取所有参数键值对
+        param_pattern = r'(\w+)\s*:\s*"([^"]*)"'
+        params = dict(re.findall(param_pattern, args_text))
+
+        # 配对 trans_N 和 fallb_N
+        for suffix in ["_2", "_3"]:
+            trans_key = params.get(f"trans{suffix}", "")
+            fallb_val = params.get(f"fallb{suffix}", "")
+            if trans_key and fallb_val:
+                if not is_macro_placeholder(trans_key) and not is_macro_placeholder(fallb_val):
+                    if trans_key not in extracted:
+                        extracted[trans_key] = fallb_val
 
     return extracted
 
@@ -106,6 +135,12 @@ def process_mcfunction_file(filepath):
             # 提取 JSON 格式（有些 mcfunction 文件中可能有 JSON 格式）
             json_extracted = extract_from_json_text(content)
             for k, v in json_extracted.items():
+                if k not in extracted:
+                    extracted[k] = v
+
+            # 提取宏函数调用中的翻译键（如 merge_sign 的 trans_N/fallb_N 参数）
+            macro_extracted = extract_from_macro_args(content)
+            for k, v in macro_extracted.items():
                 if k not in extracted:
                     extracted[k] = v
 
